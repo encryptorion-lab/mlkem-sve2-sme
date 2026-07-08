@@ -1,0 +1,16 @@
+# Build artifacts
+**/build/
+**/_verify/
+**/results/
+*.o
+*.obj
+*.a
+
+# Compiled benchmark/test binaries (built from source by the Makefiles)
+**/bench
+**/bench_mlkem
+**/bench_kyber
+**/bench_kyber_neon
+
+# OS cruft
+.DS_Store

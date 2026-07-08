@@ -1,0 +1,6 @@
+This project bundles third-party cryptographic sources under third_party/liboqs/
+(mlkem-native, liboqs aarch64 ML-KEM backend, pqcrystals Kyber reference,
+PQClean Kyber aarch64 NEON). Those components retain their original licenses.
+
+Project-authored SVE/SME assembly lives under kem/mlkem/variants/ and is
+licensed under GPL-3.0 (see LICENSE).

@@ -1,0 +1,248 @@
+/*******************************************************************************
+ * Copyright (C) 2025 Hanyu Wei, Wenqian Li, Shiyu Shen, Hao Yang, Yunlei Zhao
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *******************************************************************************/
+
+#include "macros_invntt.h"
+#include "../shared/params.h"
+
+// Body of a single SME inverse NTT (no smstart/smstop). Same I/O contract as
+// the forward core; uses the ZA tile, fully rewritten each invocation.
+.macro inverse_ntt_core
+    adrp x14, _constants_q_v@PAGE
+    add x14, x14, :lo12:_constants_q_v@PAGEOFF
+    ld2h {z26.h, z27.h}, p0/z, [x14]
+
+    ld1h z0.h, p0/z, [x0]
+    ld1h z1.h, p0/z, [x0, #1, mul vl]
+    ld1h z2.h, p0/z, [x0, #2, mul vl]
+    ld1h z3.h, p0/z, [x0, #3, mul vl]
+    ld1h z4.h, p0/z, [x0, #4, mul vl]
+    ld1h z5.h, p0/z, [x0, #5, mul vl]
+    ld1h z6.h, p0/z, [x0, #6, mul vl]
+    ld1h z7.h, p0/z, [x0, #7, mul vl]
+
+    add x2, x1, #512*2
+    // layer 1
+    ld1h z16.h, p0/z, [x1]
+    ld1h z17.h, p0/z, [x2]
+    ld1h z18.h, p0/z, [x1, #1, mul vl]
+    ld1h z19.h, p0/z, [x2, #1, mul vl]
+    ld1h z20.h, p0/z, [x1, #2, mul vl]
+    ld1h z21.h, p0/z, [x2, #2, mul vl]
+    ld1h z22.h, p0/z, [x1, #3, mul vl]
+    ld1h z23.h, p0/z, [x2, #3, mul vl]
+    invbutterfly_vec z0, z1, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z2, z3, z18, z19, z30, z31, z26, .h
+    invbutterfly_vec z4, z5, z20, z21, z30, z31, z26, .h
+    invbutterfly_vec z6, z7, z22, z23, z30, z31, z26, .h
+
+    // layer 2
+    ld1h z16.h, p0/z, [x1, #4, mul vl]
+    ld1h z17.h, p0/z, [x2, #4, mul vl]
+    ld1h z18.h, p0/z, [x1, #5, mul vl]
+    ld1h z19.h, p0/z, [x2, #5, mul vl]
+    invbutterfly_vec z0, z2, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z1, z3, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z4, z6, z18, z19, z30, z31, z26, .h
+    invbutterfly_vec z5, z7, z18, z19, z30, z31, z26, .h
+
+    // layer 3
+    ld1h z16.h, p0/z, [x1, #6, mul vl]
+    ld1h z17.h, p0/z, [x2, #6, mul vl]
+    invbutterfly_vec z0, z4, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z1, z5, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z2, z6, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z3, z7, z16, z17, z30, z31, z26, .h
+
+    // layer 4
+    ld1h z16.h, p0/z, [x1, #7, mul vl]
+    ld1h z17.h, p0/z, [x2, #7, mul vl]
+    add x1, x1, #(8*32*2)
+    add x2, x2, #(8*32*2)
+    trn1 z8.s, z0.s, z4.s  
+    trn1 z9.s, z1.s, z5.s 
+    trn1 z10.s, z2.s, z6.s
+    trn1 z11.s, z3.s, z7.s
+    trn2 z12.s, z0.s, z4.s  
+    trn2 z13.s, z1.s, z5.s 
+    trn2 z14.s, z2.s, z6.s
+    trn2 z15.s, z3.s, z7.s
+    invbutterfly_vec z8, z12, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z9, z13, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z10, z14, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z11, z15, z16, z17, z30, z31, z26, .h
+
+    // 0, 1, 8, 9, 32, 33, 40, 41, 64, 65, 72, 73, 96, 97, 104, 105, 128, 129, 136, 137, 160, 161, 168, 169, 192, 193, 200, 201, 224, 225, 232, 233,
+    // 2, 3, 10, 11, 34, 35, 42, 43, 66, 67, 74, 75, 98, 99, 106, 107, 130, 131, 138, 139, 162, 163, 170, 171, 194, 195, 202, 203, 226, 227, 234, 235,
+    // 4, 5, 12, 13, 36, 37, 44, 45, 68, 69, 76, 77, 100, 101, 108, 109, 132, 133, 140, 141, 164, 165, 172, 173, 196, 197, 204, 205, 228, 229, 236, 237,
+    // 6, 7, 14, 15, 38, 39, 46, 47, 70, 71, 78, 79, 102, 103, 110, 111, 134, 135, 142, 143, 166, 167, 174, 175, 198, 199, 206, 207, 230, 231, 238, 239,
+    // 16, 17, 24, 25, 48, 49, 56, 57, 80, 81, 88, 89, 112, 113, 120, 121, 144, 145, 152, 153, 176, 177, 184, 185, 208, 209, 216, 217, 240, 241, 248, 249,
+    // 18, 19, 26, 27, 50, 51, 58, 59, 82, 83, 90, 91, 114, 115, 122, 123, 146, 147, 154, 155, 178, 179, 186, 187, 210, 211, 218, 219, 242, 243, 250, 251,
+    // 20, 21, 28, 29, 52, 53, 60, 61, 84, 85, 92, 93, 116, 117, 124, 125, 148, 149, 156, 157, 180, 181, 188, 189, 212, 213, 220, 221, 244, 245, 252, 253,
+    // 22, 23, 30, 31, 54, 55, 62, 63, 86, 87, 94, 95, 118, 119, 126, 127, 150, 151, 158, 159, 182, 183, 190, 191, 214, 215, 222, 223, 246, 247, 254, 255
+
+    // ZA-Vec
+    uzp1 z0.s, z12.s, z8.s
+    uzp1 z1.s, z13.s, z9.s
+    uzp1 z2.s, z14.s, z10.s
+    uzp1 z3.s, z15.s, z11.s
+    uzp2 z4.s, z12.s, z8.s
+    uzp2 z5.s, z13.s, z9.s
+    uzp2 z6.s, z14.s, z10.s
+    uzp2 z7.s, z15.s, z11.s
+
+    mov w14, #8
+    mov w15, #12
+    mova za0h.h[w14, 0], p0/m, z0.h
+    mova za0h.h[w14, 1], p0/m, z1.h
+    mova za0h.h[w14, 2], p0/m, z2.h
+    mova za0h.h[w14, 3], p0/m, z3.h
+    mova za0h.h[w15, 1], p0/m, z5.h
+    mova za0h.h[w15, 0], p0/m, z4.h
+    mova za0h.h[w15, 2], p0/m, z6.h
+    mova za0h.h[w15, 3], p0/m, z7.h
+
+    uzp1 z0.s, z8.s, z12.s
+    uzp1 z1.s, z9.s, z13.s
+    uzp1 z2.s, z10.s, z14.s
+    uzp1 z3.s, z11.s, z15.s
+    uzp2 z4.s, z8.s, z12.s
+    uzp2 z5.s, z9.s, z13.s
+    uzp2 z6.s, z10.s, z14.s
+    uzp2 z7.s, z11.s, z15.s
+
+    mov w12, #0
+    mov w13, #4
+    mova za0h.h[w12, 0], p0/m, z0.h
+    mova za0h.h[w12, 1], p0/m, z1.h
+    mova za0h.h[w12, 2], p0/m, z2.h
+    mova za0h.h[w12, 3], p0/m, z3.h
+    mova za0h.h[w13, 0], p0/m, z4.h
+    mova za0h.h[w13, 1], p0/m, z5.h
+    mova za0h.h[w13, 2], p0/m, z6.h
+    mova za0h.h[w13, 3], p0/m, z7.h
+
+    mova z8.h, p0/m, za0v.h[w12, 0]
+    mova z9.h, p0/m, za0v.h[w12, 1]
+    mova z10.h, p0/m, za0v.h[w12, 2]
+    mova z11.h, p0/m, za0v.h[w12, 3]
+    mova z12.h, p0/m, za0v.h[w13, 0]
+    mova z13.h, p0/m, za0v.h[w13, 1]
+    mova z14.h, p0/m, za0v.h[w13, 2]
+    mova z15.h, p0/m, za0v.h[w13, 3]
+
+    zip1 z0.h, z8.h, z9.h
+    zip1 z1.h, z10.h, z11.h
+    zip1 z2.h, z12.h, z13.h
+    zip1 z3.h, z14.h, z15.h
+
+    mova z8.h, p0/m, za0v.h[w14, 0]
+    mova z9.h, p0/m, za0v.h[w14, 1]
+    mova z10.h, p0/m, za0v.h[w14, 2]
+    mova z11.h, p0/m, za0v.h[w14, 3]
+    mova z12.h, p0/m, za0v.h[w15, 0]
+    mova z13.h, p0/m, za0v.h[w15, 1]
+    mova z14.h, p0/m, za0v.h[w15, 2]
+    mova z15.h, p0/m, za0v.h[w15, 3]
+
+    zip1 z4.h, z8.h, z9.h
+    zip1 z5.h, z10.h, z11.h
+    zip1 z6.h, z12.h, z13.h
+    zip1 z7.h, z14.h, z15.h
+
+    // layer 5
+    ld1h z16.h, p0/z, [x1]
+    ld1h z17.h, p0/z, [x2]
+    ld1h z18.h, p0/z, [x1, #1, mul vl]
+    ld1h z19.h, p0/z, [x2, #1, mul vl]
+    ld1h z20.h, p0/z, [x1, #2, mul vl]
+    ld1h z21.h, p0/z, [x2, #2, mul vl]
+    ld1h z22.h, p0/z, [x1, #3, mul vl]
+    ld1h z23.h, p0/z, [x2, #3, mul vl]
+    invbutterfly_vec z0, z1, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z2, z3, z18, z19, z30, z31, z26, .h
+    invbutterfly_vec z4, z5, z20, z21, z30, z31, z26, .h
+    invbutterfly_vec z6, z7, z22, z23, z30, z31, z26, .h
+
+    barrett_vec z0, z30, z26, z27, .h
+    barrett_vec z2, z30, z26, z27, .h
+    barrett_vec z4, z30, z26, z27, .h
+    barrett_vec z6, z30, z26, z27, .h
+
+    // layer 6
+    ld1h z16.h, p0/z, [x1, #4, mul vl]
+    ld1h z17.h, p0/z, [x2, #4, mul vl]
+    ld1h z18.h, p0/z, [x1, #5, mul vl]
+    ld1h z19.h, p0/z, [x2, #5, mul vl]
+    invbutterfly_vec z0, z2, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z1, z3, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z4, z6, z18, z19, z30, z31, z26, .h
+    invbutterfly_vec z5, z7, z18, z19, z30, z31, z26, .h
+
+    // layer 7
+    ld1h z16.h, p0/z, [x1, #6, mul vl]
+    ld1h z17.h, p0/z, [x2, #6, mul vl]
+    invbutterfly_vec z0, z4, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z1, z5, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z2, z6, z16, z17, z30, z31, z26, .h
+    invbutterfly_vec z3, z7, z16, z17, z30, z31, z26, .h
+
+    st1h z4.h, p0, [x0, #4, mul vl]
+    st1h z5.h, p0, [x0, #5, mul vl]
+    st1h z6.h, p0, [x0, #6, mul vl]
+    st1h z7.h, p0, [x0, #7, mul vl]
+
+    ld1h z18.h, p0/z, [x1, #7, mul vl]
+    ld1h z19.h, p0/z, [x2, #7, mul vl]
+    barrett_mul z0, z18, z19, z26, z4, z31, .h
+    barrett_mul z1, z18, z19, z26, z5, z31, .h
+    barrett_mul z2, z18, z19, z26, z6, z31, .h
+    barrett_mul z3, z18, z19, z26, z7, z31, .h
+
+    st1h z4.h, p0, [x0]
+    st1h z5.h, p0, [x0, #1, mul vl]
+    st1h z6.h, p0, [x0, #2, mul vl]
+    st1h z7.h, p0, [x0, #3, mul vl]
+.endm
+
+.align 4
+.global inverse_ntt_asm
+.global _inverse_ntt_asm
+inverse_ntt_asm:
+_inverse_ntt_asm:
+    sme_init
+    inverse_ntt_core
+    sme_done
+    ret
+
+// inverse_ntt_polyvec_asm(int16_t *base, const int16_t *zeta)
+// Runs MLKEM_K SME inverse NTTs inside a SINGLE streaming-mode region.
+.align 4
+.global inverse_ntt_polyvec_asm
+.global _inverse_ntt_polyvec_asm
+inverse_ntt_polyvec_asm:
+_inverse_ntt_polyvec_asm:
+    sme_init
+    mov x5, x1              // preserve zeta base (core clobbers x1)
+    mov x6, #MLKEM_K
+_inverse_ntt_polyvec_loop:
+    mov x1, x5
+    inverse_ntt_core
+    add x0, x0, #512        // next polynomial (256 int16)
+    sub x6, x6, #1
+    cbnz x6, _inverse_ntt_polyvec_loop
+    sme_done
+    ret
