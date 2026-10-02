@@ -13,7 +13,7 @@ all test speed:
 		$(MAKE) -C $$d $@ || exit 1; \
 	done
 
-# Independent-run protocol for the paper tables (Q2.2). Rebuilds with
+# Independent-run protocol for the paper tables. Rebuilds with
 # NTESTS=10000, then runs 30 sequential processes. No root.
 speed-independent speed-independent-768 speed-independent-512-1024:
 	$(MAKE) -C kem/mlkem NTESTS=10000 all

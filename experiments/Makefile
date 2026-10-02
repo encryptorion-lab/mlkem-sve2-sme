@@ -119,7 +119,7 @@ clean:
 clean-results:
 	rm -rf results results-local
 
-# Q2.2 production-table protocol lives in scripts/methodology, not here.
+# The production-table protocol lives in scripts/methodology, not here.
 calibrate speed-independent speed-independent-768:
 	$(MAKE) -C $(ROOT) $@
 

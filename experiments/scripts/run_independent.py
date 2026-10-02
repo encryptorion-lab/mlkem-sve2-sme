@@ -25,10 +25,10 @@ def _can_update(path: Path) -> bool:
 
 
 def ensure_writable(path: Path) -> Path:
-    """Use results-local when a previous root-owned results/ tree is not writable.
+    """Use results-local when the requested output tree is not writable.
 
-    Creating a new probe file can succeed while overwriting an existing
-    root-owned environment.txt still fails.
+    Creating a probe file can succeed while overwriting an existing output
+    file still fails, so both cases are checked.
     """
     path = path.resolve()
     fallback = (path.parent / "results-local").resolve()
@@ -36,7 +36,7 @@ def ensure_writable(path: Path) -> Path:
     def use_fallback() -> Path:
         fallback.mkdir(parents=True, exist_ok=True)
         print(
-            f"warning: {path} is not writable (leftover root-owned files). "
+            f"warning: {path} is not writable. "
             f"Writing to {fallback}.",
             flush=True,
         )
@@ -65,7 +65,7 @@ def command_output(command: list[str]) -> str:
 def capture_environment(output: Path) -> None:
     commands = [
         ["date", "-u"],
-        ["uname", "-a"],
+        ["uname", "-srm"],
         ["sw_vers"],
         ["sysctl", "-n", "machdep.cpu.brand_string"],
         ["sysctl", "-n", "hw.model"],

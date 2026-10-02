@@ -34,7 +34,7 @@ def command_output(command: list[str]) -> str:
 def capture_environment(output: Path) -> None:
     commands = [
         ["date", "-u"],
-        ["uname", "-a"],
+        ["uname", "-srm"],
         ["sw_vers"],
         ["sysctl", "-n", "machdep.cpu.brand_string"],
         ["sysctl", "-n", "hw.model"],

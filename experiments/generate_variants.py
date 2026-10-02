@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build the Q2.3 ablation from the production NTT, which is the final version.
+"""Build the five-stage ablation from the production NTT.
 
-Production sources are copied, not edited. Earlier stages remove or replace
+Production sources are copied, not edited. Ablation stages remove or replace
 one factor at a time:
 
   S1 base   Production VecNTT with a spill after every layer, so each layer

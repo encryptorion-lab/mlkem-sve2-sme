@@ -1,7 +1,4 @@
-"""Pick a writable results directory.
-
-Previous sudo kperf runs left root-owned files under results/.
-"""
+"""Pick a writable local results directory."""
 
 from __future__ import annotations
 
@@ -28,7 +25,7 @@ def ensure_writable(path: Path) -> Path:
     fallback = (ROOT / "results-local" / relative).resolve()
     fallback.mkdir(parents=True, exist_ok=True)
     print(
-        f"warning: {path} is not writable (leftover root-owned files). "
+        f"warning: {path} is not writable. "
         f"Writing to {fallback}. Both root result trees are local, ignored "
         f"outputs; no root privileges are required.",
         flush=True,

@@ -63,10 +63,9 @@ frequency. It is not a hardware core-cycle count. The paper runs recorded a
 41 ns timer resolution, and user-interactive QoS does not pin the process or
 guarantee that frequency. Outputs are written under `experiments/results/`
 when commands are run from the repository root (the local path is `results/`
-inside this directory). This is the only results directory intended for Git,
-and its committed five-stage data match the paper. Root privileges are not
-required.
+inside this directory). The archived five-stage data in that directory match
+the paper. Root privileges are not required.
 
-`make clean` removes build products but preserves the committed measurements.
+`make clean` removes build products but preserves the archived measurements.
 Use `make clean-results` only when intentionally replacing
 `experiments/results/`.

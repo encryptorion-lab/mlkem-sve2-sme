@@ -37,11 +37,5 @@ speed-independent-mlkem-sve-768:
 clean:
 	rm -rf $(BUILD)
 
-# Previous sudo kperf runs left results/ owned by root. This target
-# only prints the reclaim command; it does not prompt for a password.
-fix-results-perms:
-	@echo "sudo chown -R \"$$(whoami)\" \"$(ROOT)/results\""
-
 .PHONY: calibrate instr instr-smoke speed-independent speed-independent-768 \
-	speed-independent-512-1024 speed-independent-mlkem-sve-768 \
-	clean fix-results-perms
+	speed-independent-512-1024 speed-independent-mlkem-sve-768 clean
