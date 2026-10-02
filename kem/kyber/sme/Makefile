@@ -85,7 +85,7 @@ speed: all
 	@mkdir -p results/speed
 	@for exe in $(BENCHES); do \
 		name=$$(basename $$(dirname $$exe)); \
-		sudo $$exe --speed > results/speed/$$name.csv; done
+		$$exe --speed > results/speed/$$name.csv; done
 
 clean:
 	rm -rf $(BUILD)

@@ -1,0 +1,38 @@
+$ date -u
+Thu Oct  1 13:00:23 UTC 2026
+
+$ uname -a
+Darwin Wendys-MacBook-Pro.local 24.4.0 Darwin Kernel Version 24.4.0: Fri Apr 11 18:32:50 PDT 2025; root:xnu-11417.101.15~117/RELEASE_ARM64_T6041 arm64
+
+$ sw_vers
+ProductName:		macOS
+ProductVersion:		15.4.1
+BuildVersion:		24E263
+
+$ sysctl -n machdep.cpu.brand_string
+Apple M4 Pro
+
+$ sysctl -n hw.model
+Mac16,8
+
+$ sysctl -n hw.perflevel0.name
+Performance
+
+$ sysctl -n hw.perflevel0.physicalcpu
+8
+
+$ sysctl -n hw.cpufrequency
+
+
+$ sysctl -n hw.cpufrequency_max
+
+
+$ printenv BENCH_CPU_HZ
+<unavailable: >
+
+$ clang --version
+Apple clang version 16.0.0 (clang-1600.0.26.6)
+Target: arm64-apple-darwin24.4.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+

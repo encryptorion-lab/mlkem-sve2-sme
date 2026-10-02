@@ -1,0 +1,2 @@
+VecNTT,forward_int16,1472,forward_bytes,2944,inverse_int16,1536,inverse_bytes,3072
+MatNTT,forward_int16,928,forward_bytes,1856,inverse_int16,1024,inverse_bytes,2048

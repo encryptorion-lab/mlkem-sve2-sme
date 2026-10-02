@@ -58,10 +58,9 @@ static mlk_polyvec bench_b_src;           /* b, standard domain (< q)      */
 static mlk_polyvec bench_pkpv;            /* matrix-vector product output  */
 
 /*
- * Cycle counter from common/cycles.c. On Apple silicon this reads the PMU via
- * kperf and requires root (init_counter()); without it get_cycle() degrades to
- * a constant and the figures are meaningless. On other aarch64 it reads
- * PMCCNTR_EL0. The reported unit is always "cycles".
+ * Estimated cycle-equivalents (CE) from common/cycles.c: CLOCK_UPTIME_RAW
+ * (or CLOCK_MONOTONIC_RAW) elapsed time multiplied by an assumed P-core
+ * frequency. No PMU / kperf / cntvct_el0. These are not retired core cycles.
  */
 static uint64_t now_cycles(void)
 {
@@ -173,9 +172,10 @@ static void print_stats(const char *operation, uint64_t *samples, size_t n)
     variance /= (long double)n;
 
     printf("%s,%s,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
-           ",%.2f,%zu,cycles;warmup=%d;arith_reps=%d\n",
+           ",%.2f,%zu,%s;warmup=%d;arith_reps=%d\n",
            BENCH_VARIANT, BENCH_PARAMSET, operation, median, p25, p75, iqr,
-           sqrt_newton((double)variance), n, BENCH_WARMUP, ARITH_REPS);
+           sqrt_newton((double)variance), n, get_counter_notes(), BENCH_WARMUP,
+           ARITH_REPS);
 }
 
 static int prepare_fixed_keys(void)
@@ -401,7 +401,6 @@ static int run_speed(void)
         return 1;
     }
 
-    /* Set up the PMU cycle counter (no-op / best effort without root). */
     init_counter();
 
     if (prepare_fixed_keys() != 0) {

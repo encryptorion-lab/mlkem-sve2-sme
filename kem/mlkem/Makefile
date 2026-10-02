@@ -85,7 +85,8 @@ $(BUILD)/$(2)-$(1)/bench_mlkem
 endef
 
 define build_rule
-$(call bench_target,$(1),$(2)): bench_mlkem.c $$(COMMON)/fips202.c $$(COMMON)/cycles.c
+$(call bench_target,$(1),$(2)): bench_mlkem.c $$(COMMON)/fips202.c $$(COMMON)/cycles.c \
+	$$(call variant_extra_sources,$(1),$(2))
 	@mkdir -p $$(@D)
 	$$(CC) $$(BASE_CFLAGS) -I$$(call variant_dir,$(1),$(2))/mlkem/src \
 		-I$$(call variant_dir,$(1),$(2)) $$(call variant_extra_includes,$(1),$(2)) \

@@ -1,7 +1,14 @@
-# Build artifacts
+# Build artifacts and local benchmark outputs
 **/build/
 **/_verify/
-**/results/
+/results/
+/results-local/
+/experiments/results-local/
+/kem/**/results/
+**/__pycache__/
+*.pyc
+/scripts/methodology/*.err
+/experiments/generated/.stamp
 *.o
 *.obj
 *.a

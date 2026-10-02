@@ -1,7 +1,18 @@
 #ifndef CYCLES_H
 #define CYCLES_H
 
-// Define either __AVERAGE__ or __MEDIAN__ before including this header
+/*
+ * Wall-clock timing converted to estimated core cycles.
+ *
+ * Apple: CLOCK_UPTIME_RAW (same timebase as C++ steady_clock / mach_absolute_time,
+ * reported in nanoseconds). Other hosts: CLOCK_MONOTONIC_RAW.
+ * Cycles = elapsed_ns * recorded_P_core_Hz / 1e9.
+ *
+ * Frequency resolution order: BENCH_CPU_HZ, sysctl hw.cpufrequency(_max),
+ * then the advertised P-core maximum for known Apple chips.
+ * The measuring thread requests QOS_CLASS_USER_INTERACTIVE so macOS prefers
+ * performance cores.
+ */
 
 #include <stdint.h>
 #include <stddef.h>
@@ -9,6 +20,13 @@
 
 void init_counter(void);
 uint64_t get_cycle(void);
+uint64_t get_time_ns(void);
+uint64_t ns_to_cycles(uint64_t ns);
+uint64_t get_cpu_hz(void);
+uint64_t get_timer_res_ns(void);
+const char *get_timer_name(void);
+const char *get_cpu_hz_source(void);
+const char *get_counter_notes(void);
 
 #ifndef BENCH_WARMUP
 #define BENCH_WARMUP 100
@@ -34,7 +52,7 @@ uint64_t get_cycle(void);
 #define BENCH_STRINGIFY(x) BENCH_STRINGIFY2(x)
 
 #ifndef BENCH_NOTES
-#define BENCH_NOTES "warmup=" BENCH_STRINGIFY(BENCH_WARMUP) ";counter=thread_cycles"
+#define BENCH_NOTES "warmup=" BENCH_STRINGIFY(BENCH_WARMUP) ";timer=wallclock"
 #endif
 
 #ifdef __AVERAGE__
@@ -109,7 +127,7 @@ static void bench_print_stats(const char *operation, uint64_t *records, size_t n
         printf("variant,paramset,operation,median,p25,p75,iqr,stddev,n,notes\n");
         printed_header = 1;
     }
-    printf("%s,%s,%s,%llu,%llu,%llu,%llu,%.2f,%zu,%s\n",
+    printf("%s,%s,%s,%llu,%llu,%llu,%llu,%.2f,%zu,%s;warmup=%s\n",
            BENCH_VARIANT,
            BENCH_PARAMSET,
            operation,
@@ -119,7 +137,8 @@ static void bench_print_stats(const char *operation, uint64_t *records, size_t n
            (unsigned long long)iqr,
            stddev,
            n,
-           BENCH_NOTES);
+           get_counter_notes(),
+           BENCH_STRINGIFY(BENCH_WARMUP));
 }
 
 #define LOOP_INIT(__clock0, __clock1) {}

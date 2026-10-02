@@ -674,7 +674,7 @@ Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
 
                     mlkem-sve2-sme
-  Optimized Implementation of ML-KEM on ARMv9-A with SVE2 and SME
+  Implementing and Measuring ML-KEM on ARMv9-A with SVE2 and SME
 
   Copyright (C) 2025 Hanyu Wei, Wenqian Li, Shiyu Shen, Hao Yang, Yunlei Zhao
 

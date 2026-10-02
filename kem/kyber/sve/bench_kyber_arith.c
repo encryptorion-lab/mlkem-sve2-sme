@@ -170,10 +170,10 @@ static void print_stats(const char *operation, uint64_t *s, size_t n)
     variance /= (long double)n;
 
     printf("%s,%s,%s,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
-           ",%.2f,%zu,cycles;warmup=%d;arith_reps=%d\n",
+           ",%.2f,%zu,%s;warmup=%d;arith_reps=%d\n",
            BENCH_VARIANT, BENCH_PARAMSET, operation, median, p25, p75,
-           p75 - p25, sqrt_newton((double)variance), n, BENCH_WARMUP,
-           ARITH_REPS);
+           p75 - p25, sqrt_newton((double)variance), n, get_counter_notes(),
+           BENCH_WARMUP, ARITH_REPS);
 }
 
 #define BENCH_LOOP(OP_NAME, BODY)                          \

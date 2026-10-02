@@ -9,12 +9,8 @@
 # Usage:
 #   make all            # build all four backends (512/768/1024)
 #   make test           # KEM correctness for all four
-#   sudo make speed      # benchmark all four + write the combined table
-#   make table          # just re-merge existing CSVs (no rerun, no root)
-#
-# Run `speed` as root: kyber-ref's bench reads the cycle counter directly
-# (neon/sve/sme self-sudo their binaries, but running the whole target under
-# sudo is simplest and covers ref too).
+#   make speed          # benchmark all four + write the combined table
+#   make table          # just re-merge existing CSVs (no rerun)
 
 SUBDIRS := ref neon sve sme
 MAKEFLAGS += --no-print-directory

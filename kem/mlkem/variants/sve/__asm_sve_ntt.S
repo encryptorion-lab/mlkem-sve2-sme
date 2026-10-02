@@ -41,19 +41,19 @@
     // layer 1
     ld1h z16.h, p0/z, [x1]
     ld1h z17.h, p0/z, [x2]
-    butterfly_vec z0, z4, z16, z17, z30, z31, z26, .h
-    butterfly_vec z1, z5, z16, z17, z30, z31, z26, .h
-    butterfly_vec z2, z6, z16, z17, z30, z31, z26, .h
     butterfly_vec z3, z7, z16, z17, z30, z31, z26, .h
+    butterfly_vec z2, z6, z16, z17, z30, z31, z26, .h
+    butterfly_vec z1, z5, z16, z17, z30, z31, z26, .h
+    butterfly_vec z0, z4, z16, z17, z30, z31, z26, .h
     // layer 2
     ld1h z16.h, p0/z, [x1, #1, mul vl]
     ld1h z17.h, p0/z, [x2, #1, mul vl]
     ld1h z18.h, p0/z, [x1, #2, mul vl]
     ld1h z19.h, p0/z, [x2, #2, mul vl]
-    butterfly_vec z0, z2, z16, z17, z30, z31, z26, .h
-    butterfly_vec z1, z3, z16, z17, z30, z31, z26, .h
-    butterfly_vec z4, z6, z18, z19, z30, z31, z26, .h
     butterfly_vec z5, z7, z18, z19, z30, z31, z26, .h
+    butterfly_vec z4, z6, z18, z19, z30, z31, z26, .h
+    butterfly_vec z1, z3, z16, z17, z30, z31, z26, .h
+    butterfly_vec z0, z2, z16, z17, z30, z31, z26, .h
 
     // layer 3
     ld1h z16.h, p0/z, [x1, #3, mul vl]
@@ -64,57 +64,113 @@
     ld1h z21.h, p0/z, [x2, #5, mul vl]
     ld1h z22.h, p0/z, [x1, #6, mul vl]
     ld1h z23.h, p0/z, [x2, #6, mul vl]
-    butterfly_vec z0, z1, z16, z17, z30, z31, z26, .h
-    butterfly_vec z2, z3, z18, z19, z30, z31, z26, .h
-    butterfly_vec z4, z5, z20, z21, z30, z31, z26, .h
     butterfly_vec z6, z7, z22, z23, z30, z31, z26, .h
+    butterfly_vec z4, z5, z20, z21, z30, z31, z26, .h
+    butterfly_vec z2, z3, z18, z19, z30, z31, z26, .h
+    butterfly_vec z0, z1, z16, z17, z30, z31, z26, .h
 
     add x1, x1, #7*64
     add x2, x2, #7*64
-    ld1h z16.h, p0/z, [x1]
-    ld1h z17.h, p0/z, [x2]
-    ld1h z18.h, p0/z, [x1, #1, mul vl]
-    ld1h z19.h, p0/z, [x2, #1, mul vl]
-    ld1h z20.h, p0/z, [x1, #2, mul vl]
-    ld1h z21.h, p0/z, [x2, #2, mul vl]
-    ld1h z22.h, p0/z, [x1, #3, mul vl]
-    ld1h z23.h, p0/z, [x2, #3, mul vl]
-    two_reg_ntt_4_layer z0, z1, z28, z29, z30, z31, \
-                            z16, z18, z20, z22, z17, z19, z21, z23, z26, .h, .s, .d
-    ld1h z16.h, p0/z, [x1, #4, mul vl]
-    ld1h z17.h, p0/z, [x2, #4, mul vl]
-    ld1h z18.h, p0/z, [x1, #5, mul vl]
-    ld1h z19.h, p0/z, [x2, #5, mul vl]
-    ld1h z20.h, p0/z, [x1, #6, mul vl]
-    ld1h z21.h, p0/z, [x2, #6, mul vl]
-    ld1h z22.h, p0/z, [x1, #7, mul vl]
-    ld1h z23.h, p0/z, [x2, #7, mul vl]
-    two_reg_ntt_4_layer z2, z3, z28, z29, z30, z31, \
-                        z16, z18, z20, z22, z17, z19, z21, z23, z26, .h, .s, .d
-
-    add x1, x1, #8*64
-    add x2, x2, #8*64
-    ld1h z16.h, p0/z, [x1]
-    ld1h z17.h, p0/z, [x2]
-    ld1h z18.h, p0/z, [x1, #1, mul vl]
-    ld1h z19.h, p0/z, [x2, #1, mul vl]
-    ld1h z20.h, p0/z, [x1, #2, mul vl]
-    ld1h z21.h, p0/z, [x2, #2, mul vl]
-    ld1h z22.h, p0/z, [x1, #3, mul vl]
-    ld1h z23.h, p0/z, [x2, #3, mul vl]
-    two_reg_ntt_4_layer z4, z5, z28, z29, z30, z31, \
-                            z16, z18, z20, z22, z17, z19, z21, z23, z26, .h, .s, .d
-    ld1h z16.h, p0/z, [x1, #4, mul vl]
-    ld1h z17.h, p0/z, [x2, #4, mul vl]
-    ld1h z18.h, p0/z, [x1, #5, mul vl]
-    ld1h z19.h, p0/z, [x2, #5, mul vl]
-    ld1h z20.h, p0/z, [x1, #6, mul vl]
-    ld1h z21.h, p0/z, [x2, #6, mul vl]
-    ld1h z22.h, p0/z, [x1, #7, mul vl]
-    ld1h z23.h, p0/z, [x2, #7, mul vl]
-    two_reg_ntt_4_layer z6, z7, z28, z29, z30, z31, \
-                        z16, z18, z20, z22, z17, z19, z21, z23, z26, .h, .s, .d
-
+    mov x3, x1
+    mov x4, x2
+    add x7, x3, #8*64
+    add x8, x4, #8*64
+    // layer 4: all four pairs (twiddles then butterflies)
+    ld1h z16.h, p0/z, [x3]
+    ld1h z17.h, p0/z, [x4]
+    ld1h z18.h, p0/z, [x3, #4, mul vl]
+    ld1h z19.h, p0/z, [x4, #4, mul vl]
+    ld1h z20.h, p0/z, [x7]
+    ld1h z21.h, p0/z, [x8]
+    ld1h z22.h, p0/z, [x7, #4, mul vl]
+    ld1h z23.h, p0/z, [x8, #4, mul vl]
+    zip1 z28.d, z6.d, z7.d
+    zip2 z29.d, z6.d, z7.d
+    butterfly_vec z28, z29, z22, z23, z30, z31, z26, .h
+    zip1 z6.d, z28.d, z29.d
+    zip2 z7.d, z28.d, z29.d
+    zip1 z28.d, z4.d, z5.d
+    zip2 z29.d, z4.d, z5.d
+    butterfly_vec z28, z29, z20, z21, z30, z31, z26, .h
+    zip1 z4.d, z28.d, z29.d
+    zip2 z5.d, z28.d, z29.d
+    zip1 z28.d, z2.d, z3.d
+    zip2 z29.d, z2.d, z3.d
+    butterfly_vec z28, z29, z18, z19, z30, z31, z26, .h
+    zip1 z2.d, z28.d, z29.d
+    zip2 z3.d, z28.d, z29.d
+    zip1 z28.d, z0.d, z1.d
+    zip2 z29.d, z0.d, z1.d
+    butterfly_vec z28, z29, z16, z17, z30, z31, z26, .h
+    zip1 z0.d, z28.d, z29.d
+    zip2 z1.d, z28.d, z29.d
+    // layer 5: all four pairs (twiddles then butterflies)
+    ld1h z16.h, p0/z, [x3, #1, mul vl]
+    ld1h z17.h, p0/z, [x4, #1, mul vl]
+    ld1h z18.h, p0/z, [x3, #5, mul vl]
+    ld1h z19.h, p0/z, [x4, #5, mul vl]
+    ld1h z20.h, p0/z, [x7, #1, mul vl]
+    ld1h z21.h, p0/z, [x8, #1, mul vl]
+    ld1h z22.h, p0/z, [x7, #5, mul vl]
+    ld1h z23.h, p0/z, [x8, #5, mul vl]
+    butterfly_vec z6, z7, z22, z23, z30, z31, z26, .h
+    butterfly_vec z4, z5, z20, z21, z30, z31, z26, .h
+    butterfly_vec z2, z3, z18, z19, z30, z31, z26, .h
+    butterfly_vec z0, z1, z16, z17, z30, z31, z26, .h
+    // layer 6: all four pairs (twiddles then butterflies)
+    ld1h z16.h, p0/z, [x3, #2, mul vl]
+    ld1h z17.h, p0/z, [x4, #2, mul vl]
+    ld1h z18.h, p0/z, [x3, #6, mul vl]
+    ld1h z19.h, p0/z, [x4, #6, mul vl]
+    ld1h z20.h, p0/z, [x7, #2, mul vl]
+    ld1h z21.h, p0/z, [x8, #2, mul vl]
+    ld1h z22.h, p0/z, [x7, #6, mul vl]
+    ld1h z23.h, p0/z, [x8, #6, mul vl]
+    zip1 z28.d, z6.d, z7.d
+    zip2 z29.d, z6.d, z7.d
+    butterfly_vec z28, z29, z22, z23, z30, z31, z26, .h
+    trn1 z6.s, z28.s, z29.s
+    trn2 z7.s, z28.s, z29.s
+    zip1 z28.d, z4.d, z5.d
+    zip2 z29.d, z4.d, z5.d
+    butterfly_vec z28, z29, z20, z21, z30, z31, z26, .h
+    trn1 z4.s, z28.s, z29.s
+    trn2 z5.s, z28.s, z29.s
+    zip1 z28.d, z2.d, z3.d
+    zip2 z29.d, z2.d, z3.d
+    butterfly_vec z28, z29, z18, z19, z30, z31, z26, .h
+    trn1 z2.s, z28.s, z29.s
+    trn2 z3.s, z28.s, z29.s
+    zip1 z28.d, z0.d, z1.d
+    zip2 z29.d, z0.d, z1.d
+    butterfly_vec z28, z29, z16, z17, z30, z31, z26, .h
+    trn1 z0.s, z28.s, z29.s
+    trn2 z1.s, z28.s, z29.s
+    // layer 7: all four pairs (twiddles then butterflies)
+    ld1h z16.h, p0/z, [x3, #3, mul vl]
+    ld1h z17.h, p0/z, [x4, #3, mul vl]
+    ld1h z18.h, p0/z, [x3, #7, mul vl]
+    ld1h z19.h, p0/z, [x4, #7, mul vl]
+    ld1h z20.h, p0/z, [x7, #3, mul vl]
+    ld1h z21.h, p0/z, [x8, #3, mul vl]
+    ld1h z22.h, p0/z, [x7, #7, mul vl]
+    ld1h z23.h, p0/z, [x8, #7, mul vl]
+    butterfly_vec z6, z7, z22, z23, z30, z31, z26, .h
+    zip2 z29.s, z6.s, z7.s
+    zip1 z6.s, z6.s, z7.s
+    mov z7.d, z29.d
+    butterfly_vec z4, z5, z20, z21, z30, z31, z26, .h
+    zip2 z29.s, z4.s, z5.s
+    zip1 z4.s, z4.s, z5.s
+    mov z5.d, z29.d
+    butterfly_vec z2, z3, z18, z19, z30, z31, z26, .h
+    zip2 z29.s, z2.s, z3.s
+    zip1 z2.s, z2.s, z3.s
+    mov z3.d, z29.d
+    butterfly_vec z0, z1, z16, z17, z30, z31, z26, .h
+    zip2 z29.s, z0.s, z1.s
+    zip1 z0.s, z0.s, z1.s
+    mov z1.d, z29.d
     barrett_vec z0, z30, z26, z27, .h
     barrett_vec z2, z30, z26, z27, .h
     barrett_vec z4, z30, z26, z27, .h

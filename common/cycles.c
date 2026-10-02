@@ -1,162 +1,199 @@
-
 #include "cycles.h"
 
-/*
- * Modified from
- * https://github.com/GMUCERG/PQC_NEON/blob/main/neon/kyber/m1cycles.c, Duc Tri Nguyen (CERG GMU)
- * which was modified from M1
- * https://gist.github.com/dougallj/5bafb113492047c865c0c8cfbc930155#file-m1_robsize-c-L390
- */
-
-#ifdef __APPLE__
-
-#include <dlfcn.h>
-#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-#define KPERF_LIST                               \
-    /*  ret, name, params */                     \
-    F(int, kpc_get_counting, void)               \
-    F(int, kpc_force_all_ctrs_set, int)          \
-    F(int, kpc_set_counting, uint32_t)           \
-    F(int, kpc_set_thread_counting, uint32_t)    \
-    F(int, kpc_set_config, uint32_t, void *)     \
-    F(int, kpc_get_config, uint32_t, void *)     \
-    F(int, kpc_set_period, uint32_t, void *)     \
-    F(int, kpc_get_period, uint32_t, void *)     \
-    F(uint32_t, kpc_get_counter_count, uint32_t) \
-    F(uint32_t, kpc_get_config_count, uint32_t)  \
-    F(int, kperf_sample_get, int *)              \
-    F(int, kpc_get_thread_counters, int, unsigned int, void *)
+#ifdef __APPLE__
+#include <pthread.h>
+#include <sys/sysctl.h>
+#endif
 
-#define F(ret, name, ...)                \
-    typedef ret name##proc(__VA_ARGS__); \
-    static name##proc *name;
-KPERF_LIST
-#undef F
+#ifdef __APPLE__
+#define TIMER_NAME "CLOCK_UPTIME_RAW"
+#else
+#define TIMER_NAME "CLOCK_MONOTONIC_RAW"
+#endif
 
-#define CFGWORD_EL0A32EN_MASK (0x10000)
-#define CFGWORD_EL0A64EN_MASK (0x20000)
-#define CFGWORD_EL1EN_MASK (0x40000)
-#define CFGWORD_EL3EN_MASK (0x80000)
-#define CFGWORD_ALLMODES_MASK (0xf0000)
+static uint64_t g_cpu_hz;
+static uint64_t g_timer_res_ns;
+static const char *g_hz_source = "unset";
+static char g_notes[384];
+static int g_ready;
 
-#define CPMU_NONE 0
-#define CPMU_CORE_CYCLE 0x02
-#define CPMU_INST_A64 0x8c
-#define CPMU_INST_BRANCH 0x8d
-#define CPMU_SYNC_DC_LOAD_MISS 0xbf
-#define CPMU_SYNC_DC_STORE_MISS 0xc0
-#define CPMU_SYNC_DTLB_MISS 0xc1
-#define CPMU_SYNC_ST_HIT_YNGR_LD 0xc4
-#define CPMU_SYNC_BR_ANY_MISP 0xcb
-#define CPMU_FED_IC_MISS_DEM 0xd3
-#define CPMU_FED_ITLB_MISS 0xd4
-
-#define KPC_CLASS_FIXED (0)
-#define KPC_CLASS_CONFIGURABLE (1)
-#define KPC_CLASS_POWER (2)
-#define KPC_CLASS_RAWPMU (3)
-#define KPC_CLASS_FIXED_MASK (1u << KPC_CLASS_FIXED)
-#define KPC_CLASS_CONFIGURABLE_MASK (1u << KPC_CLASS_CONFIGURABLE)
-#define KPC_CLASS_POWER_MASK (1u << KPC_CLASS_POWER)
-#define KPC_CLASS_RAWPMU_MASK (1u << KPC_CLASS_RAWPMU)
-
-// COUNTERS_COUNT may vary
-#define COUNTERS_COUNT 2//10
-#define CONFIG_COUNT 0//8
-// #define KPC_MASK (KPC_CLASS_CONFIGURABLE_MASK | KPC_CLASS_FIXED_MASK)
-#define KPC_MASK (KPC_CLASS_FIXED_MASK)
-uint64_t g_counters[COUNTERS_COUNT];
-// uint64_t g_config[COUNTERS_COUNT];
-
-static void configure_rdtsc(void)
+static uint64_t now_ns(void)
 {
-    // if (kpc_set_config(KPC_MASK, g_config))
-    // {
-    //     printf("kpc_set_config failed\n");
-    //     return;
-    // }
-
-    if (kpc_force_all_ctrs_set(1))
-    {
-        printf("kpc_force_all_ctrs_set failed\n");
-        return;
-    }
-
-    if (kpc_set_counting(KPC_MASK))
-    {
-        printf("kpc_set_counting failed\n");
-        return;
-    }
-
-    if (kpc_set_thread_counting(KPC_MASK))
-    {
-        printf("kpc_set_thread_counting failed\n");
-        return;
-    }
+#ifdef __APPLE__
+    return clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+#else
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
+#endif
 }
 
-static void init_rdtsc(void)
+static int parse_hz(const char *text, uint64_t *out)
 {
-    void *kperf = dlopen(
-        "/System/Library/PrivateFrameworks/kperf.framework/Versions/A/kperf",
-        RTLD_LAZY);
-    if (!kperf)
-    {
-        printf("kperf = %p\n", kperf);
-        return;
-    }
-#define F(ret, name, ...)                         \
-    name = (name##proc *)(dlsym(kperf, #name));   \
-    if (!name)                                    \
-    {                                             \
-        printf("%s = %p\n", #name, (void *)name); \
-        return;                                   \
-    }
-    KPERF_LIST
-#undef F
+    char *end = NULL;
+    unsigned long long value;
 
-    // g_config[0] = CPMU_CORE_CYCLE | CFGWORD_EL0A64EN_MASK;
+    if (text == NULL || text[0] == '\0') {
+        return 0;
+    }
+    value = strtoull(text, &end, 10);
+    if (end == text || *end != '\0' || value == 0) {
+        return 0;
+    }
+    *out = (uint64_t)value;
+    return 1;
+}
 
-    configure_rdtsc();
+#ifdef __APPLE__
+static int sysctl_u64(const char *name, uint64_t *out)
+{
+    uint64_t value = 0;
+    size_t size = sizeof(value);
+
+    if (sysctlbyname(name, &value, &size, NULL, 0) != 0 || value == 0) {
+        return 0;
+    }
+    *out = value;
+    return 1;
+}
+
+static int advertised_pcore_hz(uint64_t *out, const char **source)
+{
+    char brand[128];
+    size_t size = sizeof(brand);
+
+    memset(brand, 0, sizeof(brand));
+    if (sysctlbyname("machdep.cpu.brand_string", brand, &size, NULL, 0) != 0) {
+        return 0;
+    }
+    if (strstr(brand, "M4 Pro") != NULL || strstr(brand, "M4 Max") != NULL) {
+        *out = 4510000000ull;
+        *source = "advertised-pcore-max:Apple-M4-Pro/Max";
+        return 1;
+    }
+    if (strstr(brand, "M4") != NULL) {
+        *out = 4404000000ull;
+        *source = "advertised-pcore-max:Apple-M4";
+        return 1;
+    }
+    return 0;
+}
+#endif
+
+static uint64_t detect_cpu_hz(const char **source)
+{
+    uint64_t hz = 0;
+
+    if (parse_hz(getenv("BENCH_CPU_HZ"), &hz)) {
+        *source = "BENCH_CPU_HZ";
+        return hz;
+    }
+#ifdef __APPLE__
+    if (sysctl_u64("hw.cpufrequency_max", &hz)) {
+        *source = "sysctl:hw.cpufrequency_max";
+        return hz;
+    }
+    if (sysctl_u64("hw.cpufrequency", &hz)) {
+        *source = "sysctl:hw.cpufrequency";
+        return hz;
+    }
+    if (advertised_pcore_hz(&hz, source)) {
+        return hz;
+    }
+#endif
+    *source = "unset";
+    return 0;
+}
+
+static void pin_pcore(void)
+{
+#ifdef __APPLE__
+    (void)pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+#endif
+}
+
+static uint64_t measure_timer_res_ns(void)
+{
+    uint64_t min_pos = UINT64_MAX;
+    uint64_t prev = now_ns();
+
+    for (int i = 0; i < 200000; i++) {
+        const uint64_t now = now_ns();
+        const uint64_t delta = now - prev;
+        if (delta > 0 && delta < min_pos) {
+            min_pos = delta;
+        }
+        prev = now;
+    }
+    return min_pos == UINT64_MAX ? 0 : min_pos;
 }
 
 void init_counter(void)
 {
-    int test_high_perf_cores = 1;
+    if (g_ready) {
+        pin_pcore();
+        return;
+    }
 
-    if (test_high_perf_cores)
-    {
-        pthread_set_qos_class_self_np(QOS_CLASS_USER_INTERACTIVE, 0);
+    pin_pcore();
+    g_cpu_hz = detect_cpu_hz(&g_hz_source);
+    if (g_cpu_hz == 0) {
+        fprintf(stderr,
+                "fatal: cannot determine P-core frequency. "
+                "Set BENCH_CPU_HZ to the performance-core frequency in Hz.\n");
+        exit(1);
     }
-    else
-    {
-        pthread_set_qos_class_self_np(QOS_CLASS_BACKGROUND, 0);
-    }
-    init_rdtsc();
-    configure_rdtsc();
+    g_timer_res_ns = measure_timer_res_ns();
+    snprintf(g_notes, sizeof(g_notes),
+             "est_cycles;timer=%s;timer_res_ns=%llu;cpu_hz=%llu;hz_source=%s;"
+             "qos=user_interactive",
+             TIMER_NAME, (unsigned long long)g_timer_res_ns,
+             (unsigned long long)g_cpu_hz, g_hz_source);
+    fprintf(stderr, "# %s\n", g_notes);
+    g_ready = 1;
 }
 
-extern uint64_t get_cycle(void)
+uint64_t get_time_ns(void)
 {
-    if (kpc_get_thread_counters(0, COUNTERS_COUNT, g_counters))
-    {
-        return 1;
-    }
-    return (uint64_t)g_counters[0];
-    // return (uint64_t)g_counters[2];
+    return now_ns();
 }
 
-#else
-
-void init_counter(void){return;}
-
-uint64_t get_cycle(void){
-  uint64_t t;
-  asm volatile("mrs %0, PMCCNTR_EL0":"=r"(t));
-  return t;
+uint64_t ns_to_cycles(uint64_t ns)
+{
+    return (uint64_t)((__uint128_t)ns * (uint64_t)g_cpu_hz / 1000000000ull);
 }
 
-#endif
+uint64_t get_cycle(void)
+{
+    return ns_to_cycles(now_ns());
+}
+
+uint64_t get_cpu_hz(void)
+{
+    return g_cpu_hz;
+}
+
+uint64_t get_timer_res_ns(void)
+{
+    return g_timer_res_ns;
+}
+
+const char *get_timer_name(void)
+{
+    return TIMER_NAME;
+}
+
+const char *get_cpu_hz_source(void)
+{
+    return g_hz_source;
+}
+
+const char *get_counter_notes(void)
+{
+    return g_notes;
+}
