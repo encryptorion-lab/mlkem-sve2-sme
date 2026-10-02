@@ -1,0 +1,10 @@
+variant,paramset,operation,median,p25,p75,iqr,stddev,n,notes
+kyber_sme,Kyber-512,KeyGen,28751,28562,28941,379,1235.72,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,Encaps,37582,37393,37772,379,1149.12,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,Decaps,37960,37771,38146,375,1236.36,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,NTT,1191,1191,1193,2,63.46,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,INVNTT,1095,1095,1095,0,43.92,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,BaseMulAcc,747,746,747,1,13.06,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,MatrixVectorMul,4709,4694,4731,37,107.38,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,InnerProdEnc,1375,1375,1377,2,39.07,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_sme,Kyber-512,InnerProdDec,3668,3658,3677,19,98.52,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100

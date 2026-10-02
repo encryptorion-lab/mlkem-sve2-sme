@@ -1,0 +1,10 @@
+variant,paramset,operation,median,p25,p75,iqr,stddev,n,notes
+kyber_ref,Kyber-768,KeyGen,99784,96212,100537,4325,5308.86,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,Encaps,117260,116507,117639,1132,9115.56,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,Decaps,136238,130605,136612,6007,6614.93,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,NTT,3634,3506,3639,133,142.62,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,INVNTT,5645,5487,5650,163,183.48,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,BaseMulAcc,6958,6753,6966,213,195.25,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,MatrixVectorMul,50683,50416,50891,475,1167.04,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,InnerProdEnc,12721,12543,12964,421,343.26,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100
+kyber_ref,Kyber-768,InnerProdDec,23207,23001,23241,240,519.05,10000,est_cycles;timer=CLOCK_UPTIME_RAW;timer_res_ns=41;cpu_hz=4510000000;hz_source=advertised-pcore-max:Apple-M4-Pro/Max;qos=user_interactive;warmup=100;arith_reps=100

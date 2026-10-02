@@ -1,0 +1,40 @@
+$ date -u
+Thu Oct  1 13:12:34 UTC 2026
+
+$ uname -srm
+Darwin 24.4.0 arm64
+
+$ sw_vers
+ProductName:		macOS
+ProductVersion:		15.4.1
+BuildVersion:		24E263
+
+$ sysctl -n machdep.cpu.brand_string
+Apple M4 Pro
+
+$ sysctl -n hw.model
+Mac16,8
+
+$ sysctl -n hw.perflevel0.name
+Performance
+
+$ sysctl -n hw.perflevel0.physicalcpu
+8
+
+$ sysctl -n hw.cpufrequency
+
+
+$ sysctl -n hw.cpufrequency_max
+
+
+$ sysctl -n hw.tbfrequency
+24000000
+
+$ printenv BENCH_CPU_HZ
+<unavailable: >
+
+$ clang --version
+Apple clang version 16.0.0 (clang-1600.0.26.6)
+Target: arm64-apple-darwin24.4.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin

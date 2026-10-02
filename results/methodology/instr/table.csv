@@ -1,0 +1,17 @@
+class,instruction,neon_lat_cyc,sve_lat_cyc,neon_tp_cyc,sve_tp_cyc,neon_tp_cyc_per_coeff,sve_tp_cyc_per_coeff,sve_over_neon_tp_coeff
+Add,add,2.001,3.421,0.249,1.422,0.0312,0.0444,1.43x
+Sub,sub,1.999,3.421,0.249,1.422,0.0312,0.0444,1.43x
+Low multiply,mul,2.999,9.141,0.249,4.562,0.0312,0.1426,4.57x
+High-half multiply,sqrdmulh,2.999,9.141,0.249,4.559,0.0312,0.1425,4.57x
+Mul-sub,mls,2.999,9.144,0.433,4.559,0.0541,0.1425,2.63x
+Widening multiply,"smull/smullb,t",2.999,9.141,0.249,4.559,0.0624,0.2849,4.57x
+Widening mul-sub,"smlsl/smlslb,t",2.999,9.144,0.433,4.559,0.1082,0.2849,2.63x
+Permute,zip1/zip2,1.999,3.421,0.249,1.422,0.0312,0.0444,1.43x
+Permute,trn1/trn2,2.000,3.421,0.249,1.422,0.0312,0.0444,1.43x
+Permute,uzp1/uzp2,1.999,3.421,0.249,1.422,0.0312,0.0444,1.43x
+Load,ld1/ld1h,0.384,2.647,0.333,2.647,0.0416,0.0827,1.99x
+2-way load,ld2/ld2h,1.004,4.946,1.001,4.943,0.0625,0.0772,1.23x
+Store,st1/st1h,0.573,8.189,0.499,29.310,0.0624,0.9159,14.69x
+ZA transfer,mova h-store,--,2.638,--,1.422,--,0.0444,--
+ZA transfer,mova v-load,--,18.312,--,4.559,--,0.1425,--
+Mode switch,smstart+smstop,--,--,--,51.475,--,0.0000,--

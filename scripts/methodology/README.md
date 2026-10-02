@@ -67,7 +67,8 @@ make instr                      # Table 1 Neon vs SVE2/SME instruction probes
 Optional: pin the conversion frequency explicitly, for example
 `BENCH_CPU_HZ=4510000000` on this M4 Pro.
 
-Outputs normally land in the repository-local `results/methodology/` tree:
+The archived measurements and outputs from rerunning the protocol are stored
+in the repository-local `results/methodology/` tree:
 
 ```text
 results/methodology/
@@ -83,5 +84,6 @@ results/methodology/
   instr/table.csv
 ```
 
-`summary.csv` is what later replaces the single-run medians in the paper
-tables. Do not edit the manuscript until these files exist.
+`summary.csv` contains the aggregate values used to reproduce the paper
+tables; `per_run.csv` and the files under `raw/` retain the underlying
+independent-process measurements.

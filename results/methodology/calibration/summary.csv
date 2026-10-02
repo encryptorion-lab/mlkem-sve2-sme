@@ -1,0 +1,5 @@
+kind,median_elapsed_ns,q1_elapsed_ns,q3_elapsed_ns,iqr_elapsed_ns,median_est_cycles,q1_est_cycles,q3_est_cycles,iqr_est_cycles,cpu_hz,timer,hz_source,independent_runs
+empty,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,4510000000.0,CLOCK_UPTIME_RAW,advertised-pcore-max:Apple-M4-Pro/Max,30
+scalar_loop,0.889958,0.8895412500000001,0.89,0.00045874999999995225,4.01371,4.01183025,4.0139,0.0020697499999995372,4510000000.0,CLOCK_UPTIME_RAW,advertised-pcore-max:Apple-M4-Pro/Max,30
+smstart_smstop,11.67,11.67,11.67,0.0,52.63,52.63,52.63,0.0,4510000000.0,CLOCK_UPTIME_RAW,advertised-pcore-max:Apple-M4-Pro/Max,30
+ssve_mul,0.81640625,0.81640625,0.9765625,0.16015625,3.6796875,3.6796875,4.40234375,0.72265625,4510000000.0,CLOCK_UPTIME_RAW,advertised-pcore-max:Apple-M4-Pro/Max,30

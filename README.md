@@ -59,28 +59,15 @@ make speed
 
 **Requirements:** AArch64 with SME (`-march=armv9.2-a+sme+sha3`), Clang or GCC.
 
-`make speed` is a quick single-process check and reports nine operations per
-binary: KeyGen, Encaps, Decaps, NTT, INVNTT, BaseMulAcc, MatrixVectorMul,
-InnerProdEnc, and InnerProdDec. Use `make speed-independent` for the paper
-protocol.
+`make speed` is a quick single-process check and reports nine operations per binary: KeyGen, Encaps, Decaps, NTT, INVNTT, BaseMulAcc, MatrixVectorMul, InnerProdEnc, and InnerProdDec. Use `make speed-independent` for the paper protocol.
 
-## Reproducibility outputs
+## Benchmark outputs
 
-The repository uses the following result paths; only one is part of the
-version-controlled artifact:
+Quick single-process runs from `make speed` write ML-KEM CSV files to `kem/mlkem/results/speed/` and the merged Kyber table to `kem/kyber/results/kyber-speed.csv`.
 
-| Path | Purpose | Commit? |
-|------|---------|---------|
-| `experiments/results/` | Canonical five-stage ablation data matching the paper: raw runs, aggregate summary, manifest, and environment | **Yes** |
-| `results/methodology/` | Locally generated production-backend and instruction measurements | No |
-| `results-local/methodology/` | Writable fallback when a pre-existing root `results/` tree cannot be updated | No |
+The 30-run production-backend measurements used for the paper are available under `results/methodology/`. Aggregated KEM results are in `summary.csv`, per-run statistics are in `per_run.csv`, and individual process outputs are under `raw/`.
 
-Thus, `experiments/results/` is the only results directory that should be
-added to Git. The two repository-root result trees are ignored local outputs,
-not duplicate copies of the published ablation data. The committed
-`experiments/results/` directory is retained by `make clean`; from
-`experiments/`, use `make clean-results` only when intentionally replacing
-the archived measurements.
+The five-stage NTT ablation results reported in the paper are available in `experiments/results/`.
 
 ## Repository Layout
 
@@ -90,6 +77,7 @@ kem/
   mlkem/             ML-KEM harness + SVE/SME variants/
   kyber/             Kyber harness (ref / neon / sve / sme)
 scripts/methodology/ independent-run and instruction measurement protocol
+results/methodology/ archived 30-run production-backend measurements
 experiments/         five-stage forward-NTT ablation and canonical results
 third_party/liboqs/  vendored mlkem-native and Kyber sources
 ```
