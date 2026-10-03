@@ -21,7 +21,7 @@
 #include <stdint.h>
 
 #define Q 3329
-#define QINV (-3327) /* q^-1 mod 2^16, used by the constants_q_qinv table */
+#define QINV (-3327) /* signed int16 representation of 62209 = q^{-1} mod 2^16 */
 #define Barrett26 20159
 #define MONT2 1353
 
@@ -185,4 +185,3 @@ const int16_t pre_asymmetric_table_sve[128*2] = {
   -15818, 15818, 11930, -11930, -14322, 14322, 10129, -10129,
   -11999, 11999, -3878, 3878, 8711, -8711, -11566, 11566
 };
-

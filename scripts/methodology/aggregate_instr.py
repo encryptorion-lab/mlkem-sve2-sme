@@ -139,23 +139,28 @@ def main() -> None:
 
     table: list[dict[str, object]] = []
     for op, klass, mnemonic in TABLE_ROWS:
-        neon_lat = lookup.get(("neon", "lat", op), {}).get("insn")
-        sve_lat = lookup.get(("sve", "lat", op), {}).get("insn")
+        neon_first = lookup.get(("neon", "lat", op), {}).get("insn")
+        sve_first = lookup.get(("sve", "lat", op), {}).get("insn")
         neon_tp = lookup.get(("neon", "tp", op), {}).get("insn")
         sve_tp = lookup.get(("sve", "tp", op), {}).get("insn")
         neon_coeff = lookup.get(("neon", "tp", op), {}).get("coeff")
         sve_coeff = lookup.get(("sve", "tp", op), {}).get("coeff")
+        if op == "mode_switch":
+            neon_coeff = None
+            sve_coeff = None
         table.append(
             {
                 "class": klass,
                 "instruction": mnemonic,
-                "neon_lat_cyc": fmt(neon_lat),
-                "sve_lat_cyc": fmt(sve_lat),
-                "neon_tp_cyc": fmt(neon_tp),
-                "sve_tp_cyc": fmt(sve_tp),
-                "neon_tp_cyc_per_coeff": fmt(neon_coeff, 4),
-                "sve_tp_cyc_per_coeff": fmt(sve_coeff, 4),
-                "sve_over_neon_tp_coeff": ratio(sve_coeff, neon_coeff),
+                "neon_first_measurement_ce": fmt(neon_first),
+                "sve_first_measurement_ce": fmt(sve_first),
+                "neon_reciprocal_throughput_ce": fmt(neon_tp),
+                "sve_reciprocal_throughput_ce": fmt(sve_tp),
+                "neon_reciprocal_throughput_ce_per_coeff": fmt(neon_coeff, 4),
+                "sve_reciprocal_throughput_ce_per_coeff": fmt(sve_coeff, 4),
+                "sve_over_neon_reciprocal_throughput_per_coeff": ratio(
+                    sve_coeff, neon_coeff
+                ),
             }
         )
     with (args.output / "table.csv").open("w", newline="") as handle:
@@ -163,19 +168,22 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(table)
 
-    print("Table 1 (estimated cycles = time x recorded P-core Hz)")
+    print("Table 1 (estimated CE = elapsed time x assumed P-core frequency)")
     print(
         f"{'class':<16} {'insn':<20} "
-        f"{'N lat':>8} {'S lat':>8} {'N tp':>8} {'S tp':>8} "
+        f"{'N first':>8} {'S first':>8} {'N rt':>8} {'S rt':>8} "
         f"{'N/c':>8} {'S/c':>8} {'S/N':>8}"
     )
     for row in table:
         print(
             f"{row['class']:<16} {row['instruction']:<20} "
-            f"{row['neon_lat_cyc']:>8} {row['sve_lat_cyc']:>8} "
-            f"{row['neon_tp_cyc']:>8} {row['sve_tp_cyc']:>8} "
-            f"{row['neon_tp_cyc_per_coeff']:>8} {row['sve_tp_cyc_per_coeff']:>8} "
-            f"{row['sve_over_neon_tp_coeff']:>8}"
+            f"{row['neon_first_measurement_ce']:>8} "
+            f"{row['sve_first_measurement_ce']:>8} "
+            f"{row['neon_reciprocal_throughput_ce']:>8} "
+            f"{row['sve_reciprocal_throughput_ce']:>8} "
+            f"{row['neon_reciprocal_throughput_ce_per_coeff']:>8} "
+            f"{row['sve_reciprocal_throughput_ce_per_coeff']:>8} "
+            f"{row['sve_over_neon_reciprocal_throughput_per_coeff']:>8}"
         )
 
 

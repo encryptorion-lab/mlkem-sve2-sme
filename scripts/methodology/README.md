@@ -57,10 +57,10 @@ make -C scripts/methodology instr
 Then, on AC power:
 
 ```sh
-make speed-independent          # all parameter sets, 30 runs
-make speed-independent-768      # ML-KEM-768 and Kyber-768 only
-make calibrate                  # 30 independent timer calibrations
-make instr                      # Table 1 Neon vs SVE2/SME instruction probes
+make -C scripts/methodology speed-independent      # all parameter sets, 30 runs
+make -C scripts/methodology speed-independent-768  # ML-KEM-768 and Kyber-768 only
+make -C scripts/methodology calibrate              # 30 independent timer calibrations
+make -C scripts/methodology instr                  # Table 1 instruction probes
 ```
 
 Optional: pin the conversion frequency explicitly, for example
@@ -85,4 +85,9 @@ results/methodology/
 
 `summary.csv` contains the aggregate values used to reproduce the paper
 tables; `per_run.csv` and the files under `raw/` retain the underlying
-independent-process measurements.
+independent-process measurements. In `instr/table.csv`, the
+`*_first_measurement_ce` columns contain either dependence-chain measurements
+for arithmetic and permute instructions or single-destination/single-stream
+issue rates for memory and ZA-transfer probes. The
+`*_reciprocal_throughput_ce` columns contain the independent-destination or
+single-stream reciprocal-throughput measurements.

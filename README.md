@@ -47,14 +47,12 @@ Per scheme:
 
 ```sh
 # ML-KEM (512 / 768 / 1024)
-cd kem/mlkem
-make all && make test
-make speed
+make -C kem/mlkem all test
+make -C kem/mlkem speed
 
 # Kyber (512 / 768 / 1024)
-cd kem/kyber
-make all && make test
-make speed
+make -C kem/kyber all test
+make -C kem/kyber speed
 ```
 
 **Requirements:** AArch64 with SME (`-march=armv9.2-a+sme+sha3`), Clang or GCC.

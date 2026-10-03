@@ -1,7 +1,6 @@
 # Build artifacts and local benchmark outputs
 **/build/
 **/_verify/
-/results-local/
 /experiments/results-local/
 /kem/**/results/
 **/__pycache__/

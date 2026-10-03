@@ -1,4 +1,4 @@
-"""Pick a writable local results directory."""
+"""Validate that the requested results directory is writable."""
 
 from __future__ import annotations
 
@@ -15,19 +15,9 @@ def ensure_writable(path: Path) -> Path:
         probe.write_text("ok")
         probe.unlink()
         return path
-    except PermissionError:
-        pass
-
-    try:
-        relative = path.relative_to(ROOT / "results")
-    except ValueError:
-        relative = Path(path.name)
-    fallback = (ROOT / "results-local" / relative).resolve()
-    fallback.mkdir(parents=True, exist_ok=True)
-    print(
-        f"warning: {path} is not writable. "
-        f"Writing to {fallback}. Both root result trees are local, ignored "
-        f"outputs; no root privileges are required.",
-        flush=True,
-    )
-    return fallback
+    except PermissionError as exc:
+        raise SystemExit(
+            f"results directory is not writable: {path}. "
+            "Choose a writable location with --output; no root privileges "
+            "are required."
+        ) from exc

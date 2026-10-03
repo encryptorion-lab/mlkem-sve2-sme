@@ -1,12 +1,14 @@
 /*
- * Table 1 instruction latency / throughput probes.
+ * Table 1 instruction first-measurement / reciprocal-throughput probes.
  *
  * Same timer as the kernel and full-scheme benches: CLOCK_UPTIME_RAW
- * timestamps, P-core QoS, cycles = elapsed_ns * recorded_Hz / 1e9.
+ * timestamps, P-core QoS, CE = elapsed_ns * assumed_Hz / 1e9.
  *
- * Latency kernels form a destination-dependent chain. Throughput kernels
- * issue independent destinations. SVE2/SME work stays inside one
- * smstart/smstop per sample so the ~53-cycle mode switch is amortized
+ * Arithmetic and permute first-measurement kernels form a destination-
+ * dependent chain; memory and ZA first-measurement kernels report issue
+ * rates without a dependent consumer. Reciprocal-throughput kernels issue
+ * independent destinations or a sequential store stream. SVE2/SME work stays
+ * inside one smstart/smstop per sample so the mode switch is amortized
  * across INSTR_INSNS instructions. Mode-switch cost is a separate row.
  */
 
