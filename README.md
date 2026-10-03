@@ -41,7 +41,7 @@ make -C experiments all test       # five-stage ablation correctness
 make -C experiments speed-768      # five-stage ML-KEM-768 ablation
 ```
 
-The directly measured quantity is wall-clock elapsed time (`CLOCK_UPTIME_RAW` on Apple). The paper tables report estimated cycle-equivalents (CE), computed as elapsed time multiplied by an assumed 4.51 GHz performance-core frequency. This is a reporting convention, not a hardware core-cycle counter or a measurement of instantaneous frequency. The timer resolution recorded for the paper runs was 41 ns. User-interactive QoS requests performance-core scheduling but does not pin the thread or guarantee the assumed frequency. Full-KEM throughput is computed directly from elapsed time. No benchmark command requires root, `sudo`, `kperf`, or `cntvct_el0`.
+The directly measured quantity is wall-clock elapsed time (`CLOCK_UPTIME_RAW` on Apple). The paper tables report estimated cycle-equivalents (CE), computed as elapsed time multiplied by an assumed 4.51 GHz performance-core frequency. This is a reporting convention, not a hardware core-cycle counter or a measurement of instantaneous frequency. The timer resolution recorded for the paper runs was 41 ns. User-interactive QoS requests performance-core scheduling but does not pin the thread or guarantee the assumed frequency. No benchmark command requires root, `sudo`, `kperf`, or `cntvct_el0`.
 
 Per scheme:
 

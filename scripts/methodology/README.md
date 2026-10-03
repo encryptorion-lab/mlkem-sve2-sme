@@ -21,8 +21,7 @@ There is no `kperf`, `cntvct_el0`, or PMU path. Root is not required.
 The CE values are not retired core cycles, and the assumed 4.51 GHz maximum
 frequency is not an instantaneous-frequency measurement. The paper runs
 recorded a timer resolution of 41 ns, so absolute short-probe values inherit
-timer-resolution and frequency uncertainty. Full-KEM throughput is derived
-directly from elapsed time rather than from the CE scale.
+timer-resolution and frequency uncertainty. 
 `make calibrate` records the same units for the empty-timer overhead, a
 scalar loop, a batched `smstart`/`smstop` (100 entries, then divided),
 and a streaming-SVE multiply loop. On this M4 Pro the userspace clocks
