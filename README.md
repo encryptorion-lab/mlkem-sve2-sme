@@ -72,7 +72,7 @@ The five-stage NTT ablation results reported in the paper are available in `expe
 ## Repository Layout
 
 ```
-common/              cycle counter, FIPS-202 (Keccak)
+common/              timing/CE utilities, FIPS-202 (Keccak)
 kem/
   mlkem/             ML-KEM harness + SVE/SME variants/
   kyber/             Kyber harness (ref / neon / sve / sme)

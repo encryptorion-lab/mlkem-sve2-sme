@@ -16,8 +16,8 @@ all test speed:
 # Independent-run protocol for the paper tables. Rebuilds with
 # NTESTS=10000, then runs 30 sequential processes. No root.
 speed-independent speed-independent-768 speed-independent-512-1024:
-	$(MAKE) -C kem/mlkem NTESTS=10000 all
-	$(MAKE) -C kem/kyber NTESTS=10000 all
+	$(MAKE) -B -C kem/mlkem NTESTS=10000 all
+	$(MAKE) -B -C kem/kyber NTESTS=10000 all
 	$(MAKE) -C scripts/methodology $@
 
 speed-independent-mlkem-sve-768:
